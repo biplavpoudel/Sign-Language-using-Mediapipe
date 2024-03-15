@@ -11,27 +11,14 @@ import traceback
 import pyttsx3
 from keras.models import load_model
 import enchant
-import tkinter as tk
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt6.QtWidgets import QMessageBox, QLabel, QMainWindow, QFrame
 from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout
 from PyQt6.QtWidgets import QSizePolicy, QSpacerItem, QTextEdit
 from PIL import Image, ImageTk
 from PyQt6.QtGui import QImage, QPixmap, QIcon
-from PyQt6.QtCore import QTimer, Qt
-import PyQt6.QtGui as QtGui
+from PyQt6.QtCore import QTimer, Qt, pyqtSignal
 import cv2
-
-mp_drawing = mp_drawing
-mp_hands = mp_hands
-
-capture = cv2.VideoCapture(0)
-hands = mp_hands.Hands(max_num_hands=1)
-
-offset = 15
-step = 1
-flag = False
-suv = 0
 
 class GUIApp(QMainWindow):
     def __init__(self):
@@ -46,6 +33,24 @@ class GUIApp(QMainWindow):
         for voice in voices:
             self.speak_engine.setProperty('voice', voice.id)
         self.init_ui()
+
+        # Start updating the image with the webcam stream
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_image)
+        self.timer.start(100)  # Update every 100 milliseconds (adjust as needed)
+
+        self.mp_drawing = mp_drawing
+        self.mp_hands = mp_hands
+        self.hands = mp_hands.Hands(max_num_hands=1)
+
+        self.offset = 15
+        self.step = 1
+        self.flag = False
+        self.suv = 0
+        self.update_image()
+
+        self.white_image_path = "./white.jpg"
+        self.white_image = cv2.imread(self.white_image_path)
 
     def init_ui(self):
         self.setWindowTitle("Sign Language To Text Conversion")
@@ -89,21 +94,21 @@ class GUIApp(QMainWindow):
         third_row_layout.setSpacing(10)  # Adjust spacing between columns
 
         # Left panel: Webcam Stream Image
-        left_panel = QLabel()
-        left_image = QPixmap(r"biplav.jpg")
+        self.cam_label = QLabel()
+        left_image = QPixmap("")
         left_image = left_image.scaled(640, 480, Qt.AspectRatioMode.IgnoreAspectRatio)
-        left_panel.setPixmap(left_image)
+        self.cam_label.setPixmap(left_image)
         left_panel_layout = QHBoxLayout()
         left_panel_layout.addItem(QSpacerItem(40, 20))  # Add horizontal spacer for left padding
-        left_panel_layout.addWidget(left_panel)
+        left_panel_layout.addWidget(self.cam_label)
         third_row_layout.addLayout(left_panel_layout)
 
         # Middle panel: Mediapipe Skeletons Image
-        middle_panel = QLabel()
-        middle_image = QPixmap(r"D:\Mediapipe ASL\MediaPipe ASL\white.jpg")
+        self.white_label = QLabel()
+        middle_image = QPixmap("")
         middle_image = middle_image.scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio)
-        middle_panel.setPixmap(middle_image)
-        third_row_layout.addWidget(middle_panel)
+        self.white_label.setPixmap(middle_image)
+        third_row_layout.addWidget(self.white_label)
 
         # Right panel: ASL Signs Image
         right_panel = QLabel()
@@ -127,11 +132,11 @@ class GUIApp(QMainWindow):
         fourth_row_layout.addWidget(character_label)
 
         # Placeholder box as QLabel
-        placeholder_box = QLabel("A")  # Replace "A" with your predicted character
-        placeholder_box.setFixedSize(100, 100)  # Adjust the size of the box as needed
-        placeholder_box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Align the placeholder box to the left
-        placeholder_box.setStyleSheet("font-size: 60px; border: 1px solid black; color: red")  # Set text color to red
-        fourth_row_layout.addWidget(placeholder_box)
+        self.placeholder_box = QLabel("")  # Replace "A" with your predicted character
+        self.placeholder_box.setFixedSize(100, 100)  # Adjust the size of the box as needed
+        self.placeholder_box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Align the placeholder box to the left
+        self.placeholder_box.setStyleSheet("font-size: 60px; border: 1px solid black; color: red")  # Set text color to red
+        fourth_row_layout.addWidget(self.placeholder_box)
 
         # Add a stretch item to push the speaker button to the right
         fourth_row_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Policy.Expanding))
@@ -148,6 +153,54 @@ class GUIApp(QMainWindow):
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
+
+    def update_image(self):
+        try:
+            _, frame = self.vs.read()
+            frame = cv2.flip(frame, 1)
+
+            # Convert the image to RGB format for Mediapipe
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            frame_height, frame_width, frame_channels = frame_rgb.shape
+            frame_qimage = QImage(frame_rgb.data, frame_width, frame_height, frame_width * frame_channels, QImage.Format.Format_RGB888)
+
+            # Update the webcam stream image
+            frame_pixmap = QPixmap.fromImage(frame_qimage)
+            self.cam_label.setPixmap(frame_pixmap)
+
+            # Process the frame for hand landmarks and prediction
+            results = self.hands.process(frame_rgb)
+
+            white = cv2.imread("./white.jpg")
+
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(white, hand_landmarks, mp_hands.HAND_CONNECTIONS,
+                                              mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=1, circle_radius=2),
+                                              mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=3))
+
+            cv2.imshow("frame", frame)
+            cv2.imshow("1", white)  # Display the hand skeleton image
+
+            # cv2.imshow("frame", frame)
+            # cv2.imshow("1", white)
+            skeleton_pixmap = QPixmap.fromImage(QImage(white.data, white.shape[1], white.shape[0], QImage.Format.Format_RGB888))
+            self.white_label.setPixmap(skeleton_pixmap)
+            model_input = white.reshape(1, 400, 400, 3)
+            prob = np.array(self.model.predict(model_input)[0], dtype='float32')
+            ch1 = np.argmax(prob, axis=0)
+            print(f"Predicted Output is: {str(ch1)}")
+
+            self.placeholder_box.setText(str(ch1))
+
+            interrupt = cv2.waitKey(1)
+            if interrupt & 0xFF == 27:
+                exit(1)
+
+        except Exception:
+            print("==", traceback.format_exc())
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

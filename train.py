@@ -166,7 +166,7 @@ if __name__ == '__main__':
 
     checkpoint_path = r'D:\Mediapipe ASL\MediaPipe ASL\model\checkpoints\checkpoint.pt'
 
-    num_epochs = 10
+    num_epochs = 5
     train_prompt = input("Do you want to train the model? yes/no: ")
     if train_prompt == "y" or train_prompt == "yes":
         if os.path.exists(checkpoint_path):

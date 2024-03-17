@@ -30,7 +30,7 @@ class GUIApp(QMainWindow):
         self.cam_label = None
         self.vs = cv2.VideoCapture(0)
         self.current_image = None
-        self.model = load_model('ASL_model.h5')
+        self.model = load_model('model/ASL_model.h5')
         self.speak_engine = pyttsx3.init(driverName="sapi5")
         self.speak_engine.setProperty('rate', 100)
         voices = self.speak_engine.getProperty("voices")

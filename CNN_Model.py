@@ -1,13 +1,17 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import ReLU as RectifiedLinearUnit
-from torch.nn import Conv2d as Convolution
-from torch.nn import Dropout
-from torch.nn import MaxPool2d
-from torch.nn import Flatten
-from torch.nn import Linear as Dense
-from torch.nn import LogSoftmax as LogSoftmax
+from CustomLayers.Convolution import Convolution
+from CustomLayers.Activation import RectifiedLinearUnit
+from CustomLayers.MaxPool import MaxPool2d
+from CustomLayers.Loss import CrossEntropyLoss
+from CustomLayers.Dropout import Dropout
+from CustomLayers.Flatten import Flatten
+from CustomLayers.Dense import Dense
+from CustomLayers.Activation import LogSoftmax
+
+from CustomLayers.Loss import LogSoftmax
+
 from torchsummary import summary
 import torchvision.models as models
 from torch.profiler import profile, record_function, ProfilerActivity

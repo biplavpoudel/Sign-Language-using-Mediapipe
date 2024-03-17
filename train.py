@@ -1,7 +1,7 @@
 import torch
 from torch.optim.lr_scheduler import StepLR
 from CNN_Model import ASLClassifier
-from dataset_creation import device_check, create_dataset, split_dataset
+from dataset_preparation import device_check, create_dataset, split_dataset
 from torch.nn import CrossEntropyLoss
 import time
 import os
@@ -164,9 +164,9 @@ if __name__ == '__main__':
     # optimizer = torch.optim.Adam(model.classifier_layers.parameters(), lr=0.005)
     # scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
 
-    checkpoint_path = r'D:\Mediapipe ASL\MediaPipe ASL\model\checkpoints\checkpoint.pt'
+    checkpoint_path = r'/model/checkpoints/checkpoint.pt'
 
-    num_epochs = 5
+    num_epochs = 8
     train_prompt = input("Do you want to train the model? yes/no: ")
     if train_prompt == "y" or train_prompt == "yes":
         if os.path.exists(checkpoint_path):

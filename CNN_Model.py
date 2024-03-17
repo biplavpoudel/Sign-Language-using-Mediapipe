@@ -139,7 +139,6 @@ if __name__ == '__main__':
     print("\n\nThe model summary by torchsummary is: \n")
     summary(model, input_size=(3, 224, 224))
 
-
     with profile(activities=[
         ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
         with record_function("model_inference"):

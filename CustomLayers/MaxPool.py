@@ -17,6 +17,7 @@ class MaxPool2d(nn.Module):
         # return self.max_pool2d(input, pool_size=self.pool_size, stride=self.stride, padding=self.padding)
         # out of CUDA memory issues due to nested loops
         return F.max_pool2d(input, kernel_size=self.pool_size, stride=self.stride, padding=self.padding)
+
     def max_pool2d(self, input, pool_size, stride, padding):
         batch_size, channels, height, width = input.size()
 

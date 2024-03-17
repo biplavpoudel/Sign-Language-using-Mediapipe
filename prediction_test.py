@@ -60,16 +60,19 @@ class GUIApp(QMainWindow):
         self.__del__()
 
     def init_ui(self):
-        self.setWindowTitle("Sign Language To Text Conversion")
-        self.setGeometry(100, 100, 1920, 1080)
+        self.setWindowTitle("ASL using Mediapipe, PyQt6, Pyttsx3 and PyTorch")
+        self.setGeometry(0, 0, 1600, 900)
+        self.setStyleSheet("background-color: #DCF2F1;")
 
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(10)  # Adjust spacing between rows
+        main_layout.setSpacing(10) # Adjust spacing between rows
 
         # First row: Title label
         title_label = QLabel("American Sign Language Recognition System")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("font-size: 36px; padding: 10px;")  # Adjust font size and padding
+        title_label.setStyleSheet("font: bold 36px; padding: 10px; background-color: #7FC7D9;"
+                                  " border-style: outset; border-width: 2px;"
+                                  " border-radius: 10px; border-color: beige;")
         main_layout.addWidget(title_label, 3)  # Set the stretch factor to 3 for bigger height
 
         # Second row: Image titles
@@ -98,36 +101,40 @@ class GUIApp(QMainWindow):
 
         # Third row: Image panels
         third_row_layout = QHBoxLayout()
-        third_row_layout.setSpacing(10)  # Adjust spacing between columns
+        third_row_layout.setSpacing(6)  # Adjust spacing between columns
 
         # Left panel: Webcam Stream Image
         self.cam_label = QLabel()
         left_image = QPixmap("")
         left_image = left_image.scaled(640, 480, Qt.AspectRatioMode.IgnoreAspectRatio)
+        left_image = left_image.scaledToWidth(640)  # Ensuring image width matches QLabel width
         self.cam_label.setPixmap(left_image)
+        # self.cam_label.setStyleSheet("border: 2px solid black")
         left_panel_layout = QHBoxLayout()
-        left_panel_layout.addItem(QSpacerItem(40, 20))  # Add horizontal spacer for left padding
+        left_panel_layout.addItem(QSpacerItem(30, 20))  # Adding horizontal spacer for left padding
         left_panel_layout.addWidget(self.cam_label)
         third_row_layout.addLayout(left_panel_layout)
 
         # Middle panel: Mediapipe Skeletons Image
         self.white_label = QLabel()
         middle_image = QPixmap("")
-        middle_image = middle_image.scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio)
+        middle_image = middle_image.scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         self.white_label.setPixmap(middle_image)
+        # self.white_label.setStyleSheet("border: 2px solid black")
         third_row_layout.addWidget(self.white_label)
 
         # Right panel: ASL Signs Image
         right_panel = QLabel()
-        right_image = QPixmap(r"static_images/signs.png")
-        right_image = right_image.scaled(500, 700, Qt.AspectRatioMode.KeepAspectRatio)
+        right_image = QPixmap(r"static_images/asl_signs.jpg")
+        right_image = right_image.scaled(495, 551, Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         right_panel.setPixmap(right_image)
+        right_panel.setStyleSheet("border: 2px solid black")
         third_row_layout.addWidget(right_panel)
 
         main_layout.addLayout(third_row_layout, 5)  # Set the stretch factor to 5 for bigger height
 
         # Horizontal spacer between third and fourth rows
-        horizontal_spacer = QSpacerItem(40, 40)  # Adjust the size as needed
+        horizontal_spacer = QSpacerItem(20, 20)  # Adjust the size as needed
         main_layout.addSpacerItem(horizontal_spacer)
 
         # Fourth row: Labels and button
@@ -143,7 +150,7 @@ class GUIApp(QMainWindow):
         self.placeholder_box.setFixedSize(100, 100)  # Adjust the size of the box as needed
         self.placeholder_box.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Align the placeholder box to the left
         self.placeholder_box.setStyleSheet(
-            "font-size: 60px; border: 1px solid black; color: red")  # Set text color to red
+            "font-size: 60px; border: 1px solid black; color: red; background-color: white")  # Set text color to red
         fourth_row_layout.addWidget(self.placeholder_box)
 
         # Add a stretch item to push the speaker button to the right
@@ -152,6 +159,7 @@ class GUIApp(QMainWindow):
         speak_button = QPushButton("Speak")
         speak_button.setIcon(QIcon("static_images/speaker.png"))  # Add your speaker icon path here
         speak_button.setFixedSize(100, 50)  # Adjust size of the button
+        speak_button.setStyleSheet("background-color: #AAD7D9;")
         speak_button.clicked.connect(self.speak)
         fourth_row_layout.addWidget(speak_button)
 

@@ -25,7 +25,6 @@ class GUIApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.pts = None
         self.placeholder_box = None
         self.white_label = None
         self.cam_label = None
@@ -45,13 +44,14 @@ class GUIApp(QMainWindow):
         self.timer.timeout.connect(self.update_image)
         self.timer.start(100)  # Update every 100 milliseconds (adjust as needed)
 
-        self.white_image_path = "./white.jpg"
+        self.white_image_path = "static_images/white.jpg"
         self.white_image = cv2.imread(self.white_image_path)
         self.model_input = self.white_image
 
         self.mp_drawing = mp_drawing
         self.mp_hands = mp_hands
         self.hands = mp_hands.Hands(max_num_hands=1)
+        self.pts = None
 
         self.update_image()
 
@@ -119,7 +119,7 @@ class GUIApp(QMainWindow):
 
         # Right panel: ASL Signs Image
         right_panel = QLabel()
-        right_image = QPixmap(r"D:\Mediapipe ASL\MediaPipe ASL\signs.png")
+        right_image = QPixmap(r"static_images/signs.png")
         right_image = right_image.scaled(500, 700, Qt.AspectRatioMode.KeepAspectRatio)
         right_panel.setPixmap(right_image)
         third_row_layout.addWidget(right_panel)
@@ -150,7 +150,7 @@ class GUIApp(QMainWindow):
         fourth_row_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Policy.Expanding))
 
         speak_button = QPushButton("Speak")
-        speak_button.setIcon(QIcon("speaker.png"))  # Add your speaker icon path here
+        speak_button.setIcon(QIcon("static_images/speaker.png"))  # Add your speaker icon path here
         speak_button.setFixedSize(100, 50)  # Adjust size of the button
         speak_button.clicked.connect(self.speak)
         fourth_row_layout.addWidget(speak_button)
@@ -182,7 +182,7 @@ class GUIApp(QMainWindow):
             # Process the frame for hand landmarks and prediction
             results = self.hands.process(frame_rgb)
 
-            white = cv2.imread("./white.jpg")
+            white = cv2.imread("static_images/white.jpg")
 
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
@@ -190,7 +190,7 @@ class GUIApp(QMainWindow):
                                               mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=1, circle_radius=2),
                                               mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=3))
                     self.pts = hand_landmarks.landmark
-                    # print("Self.pts is:", self.pts)
+                    print("Self.pts is:", self.pts)
 
             cv2.imshow("frame", frame)
             cv2.imshow("1", white)  # Display the hand skeleton image
@@ -220,35 +220,6 @@ class GUIApp(QMainWindow):
     def distance(x, y):
         return math.sqrt(((x.x - y.x) ** 2) + ((x.y - y.y) ** 2))
 
-    # def action1(self):
-    #     idx_space = self.str.rfind(" ")
-    #     idx_word = self.str.find(self.word, idx_space)
-    #     last_idx = len(self.str)
-    #     self.str = self.str[:idx_word]
-    #     self.str = self.str + self.word1.upper()
-    #
-    # def action2(self):
-    #     idx_space = self.str.rfind(" ")
-    #     idx_word = self.str.find(self.word, idx_space)
-    #     last_idx = len(self.str)
-    #     self.str = self.str[:idx_word]
-    #     self.str = self.str + self.word2.upper()
-    #     # self.str[idx_word:last_idx] = self.word2
-    #
-    # def action3(self):
-    #     idx_space = self.str.rfind(" ")
-    #     idx_word = self.str.find(self.word, idx_space)
-    #     last_idx = len(self.str)
-    #     self.str = self.str[:idx_word]
-    #     self.str = self.str + self.word3.upper()
-    #
-    # def action4(self):
-    #     idx_space = self.str.rfind(" ")
-    #     idx_word = self.str.find(self.word, idx_space)
-    #     last_idx = len(self.str)
-    #     self.str = self.str[:idx_word]
-    #     self.str = self.str + self.word4.upper()
-
     def predict(self, image):
         white = image.reshape(1, 400, 400, 3)
         prob = np.array(self.model.predict(white)[0], dtype='float32')
@@ -275,7 +246,7 @@ class GUIApp(QMainWindow):
         # condition for [o][s]
         l = [[2, 2], [2, 1]]
         if pl in l:
-            if (self.pts[5].x < self.pts[4].x):
+            if self.pts[5].x < self.pts[4].x:
                 ch1 = 0
                 print("++++++++++++++++++")
                 print("00000")
@@ -283,8 +254,9 @@ class GUIApp(QMainWindow):
         l = [[0, 0], [0, 6], [0, 2], [0, 5], [0, 1], [0, 7], [5, 2], [7, 6], [7, 1]]
         pl = [ch1, ch2]
         if pl in l:
-            if (self.pts[0].x > self.pts[8].x and self.pts[0].x > self.pts[4].x and self.pts[0].x > self.pts[12].x and
-                self.pts[0].x > self.pts[16].x and self.pts[0].x > self.pts[20].x) and self.pts[5].x > self.pts[4].x:
+            if ((self.pts[0].x > self.pts[8].x and self.pts[0].x > self.pts[4].x and self.pts[0].x > self.pts[12].x
+                    and self.pts[0].x > self.pts[16].x and self.pts[0].x > self.pts[20].x)
+                    and self.pts[5].x > self.pts[4].x):
                 ch1 = 2
                 print("22222")
 

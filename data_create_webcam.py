@@ -138,7 +138,7 @@ flag = False
 suv = 0
 
 white = np.ones((400, 400), np.uint8) * 255
-cv2.imwrite("./white.jpg", white)
+cv2.imwrite("static_images/white.jpg", white)
 
 while True:
     try:
@@ -149,7 +149,7 @@ while True:
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(frame_rgb)
 
-        white = cv2.imread("./white.jpg")
+        white = cv2.imread("static_images/white.jpg")
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:

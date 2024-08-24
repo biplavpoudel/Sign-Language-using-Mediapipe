@@ -13,6 +13,7 @@ The prediction is then used by another prediction function that explicilty compa
 **PyQt6** is chosen as the GUI for displaying the result.
 The user can further press a "Speak" button to pronounce the character, which is based on Pyttsx3 library.
 
-![image](https://github.com/biplavpoudel/Sign-Language-using-Mediapipe/assets/60846036/c95a0953-54a9-4fa9-ab62-e3b5e744bb33)
+![313468185-c95a0953-54a9-4fa9-ab62-e3b5e744bb33](https://github.com/user-attachments/assets/61fc87c3-ff3e-4803-b9ff-cbd08310a31b)
+
 
 Still few bugs remain to be smoothened out!
